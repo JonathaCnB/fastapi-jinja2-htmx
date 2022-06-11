@@ -1,8 +1,15 @@
 from typing import Optional
 
-from fastapi import FastAPI, Header, Request
+from fastapi import Depends, FastAPI, Header, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+
+import models
+from database import SessionLocal, engine
+from deps import get_db
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title='API',
@@ -14,16 +21,37 @@ app = FastAPI(
 templates = Jinja2Templates(directory="templates")
 
 
+@app.on_event('startup')
+def startup_populate_db():
+    db = SessionLocal()
+    num_courses = db.query(models.Course).count()
+    if num_courses == 0:
+        couses = [
+            {'name': 'Django', 'lessons': 160, 'hours': 80},
+            {'name': 'Node.JS', 'lessons': 90, 'hours': 55},
+            {'name': 'Docker', 'lessons': 30, 'hours': 12},
+            {'name': 'Microservices', 'lessons': 60, 'hours': 22},
+            {'name': 'React', 'lessons': 140, 'hours': 98}
+        ]
+        for couse in couses:
+            db.add(models.Course(**couse))
+        db.commit()
+        db.close()
+    else:
+        print(f'{num_courses} Cursos no seu banco de dados')
+
+
 @app.get("/index/", response_class=HTMLResponse)
-async def movielist(
-    request: Request, hx_request: Optional[str] = Header(None)
+async def courseslist(
+    request: Request,
+    hx_request: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+    page: int = 1
 ):
-    films = [
-        {'name': 'Blade Runner', 'director': 'Ridley Scott'},
-        {'name': 'Pulp Fiction', 'director': 'Quentin Tarantino'},
-        {'name': 'Mulholland Drive', 'director': 'David Lynch'},
-    ]
-    context = {"request": request, 'films': films}
+    N = 2
+    OFFSET = (page - 1) * N
+    courses = db.query(models.Course).offset(OFFSET).limit(N)
+    context = {"request": request, 'courses': courses, 'page': page}
     if hx_request:
         return templates.TemplateResponse("partials/table.html", context)
     return templates.TemplateResponse("index.html", context)
