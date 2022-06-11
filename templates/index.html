@@ -12,28 +12,20 @@
 
 <div class="mx-4">
 
-    <p class="text-2xl font-bold mb-4">Movie List</p>
+    <p class="text-2xl font-bold mb-4">Lista de Cursos</p>
     
     <table class="min-w-[50%] mb-4">
         <thead class="border-b text-lg">
             <tr>
-                <th class="border">Film Name</th>
-                <th class="border">Director</th>
+                <th class="border">Nome</th>
+                <th class="border">Aulas</th>
+                <th class="border">Horas</th>
             </tr>
         </thead>
         <tbody class="text-center text-sm" id="table-body">
             {% include 'partials/table.html' %}
         </tbody>
-    </table>
-
-    <button 
-        class="px-3 py-1 bg-blue-600 text-white ml-4"
-        hx-get="/index/"
-        hx-target="#table-body"
-        hx-swap="beforeend"
-    >
-        Load More
-    </button>            
+    </table>            
 </div>
 
 </body>

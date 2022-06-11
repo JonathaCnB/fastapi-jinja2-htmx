@@ -1,6 +1,20 @@
-{% for film in films %}
+{% for course in courses %}
     <tr>
-        <td class="border">{{ film.name }}</td>
-        <td class="border">{{ film.director }}</td>
+        <td class="border">{{ course.name }}</td>
+        <td class="border">{{ course.lessons }}</td>
+        <td class="border">{{ course.hours }}</td>
     </tr>
 {% endfor %}
+
+<tr>
+    <td colspan="3">
+        <button 
+            class="px-3 py-1 bg-blue-600 text-white ml-4"
+            hx-get="/index?page={{ page + 1 }}"
+            hx-target="closest tr"
+            hx-swap="outerHTML"
+        >
+            Carregar Mais
+        </button>
+    </td>
+</tr>
